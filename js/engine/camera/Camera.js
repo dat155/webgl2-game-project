@@ -10,8 +10,8 @@ export default class Camera extends Node {
         this.viewMatrix = mat4.create();
     }
 
-    tick() {
-        super.tick();
+    tick(parentWorldMatrix = null) {
+        super.tick(parentWorldMatrix);
         
         // view matrix is the inverse of the world matrix.
         mat4.invert(this.viewMatrix, this.worldMatrix);
