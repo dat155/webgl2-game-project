@@ -4,8 +4,9 @@ __DEFINES__
 
 precision mediump float;
 
-in vec4 vPosition;
-in vec2 vTextureCoordinate;
+layout(location = 0) in vec4 vPosition;
+layout(location = 2) in vec2 vTextureCoordinate;
+
 out vec2 fTextureCoordinate;
 
 uniform mat4 projectionMatrix;

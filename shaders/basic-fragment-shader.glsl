@@ -6,7 +6,6 @@ precision mediump float;
 
 uniform vec4 color;
 
-
 #ifdef HAS_MAP
 uniform sampler2D map;
 #endif
