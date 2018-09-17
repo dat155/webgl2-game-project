@@ -1,5 +1,11 @@
 
-class BasicMaterial extends Material {
+import { vec4 } from '../lib/gl-matrix.js';
+
+import Material from './Material.js';
+import BasicShader from './BasicShader.js';
+
+export default class BasicMaterial extends Material {
+
     constructor({
         color = vec4.fromValues(1.0, 1.0, 1.0, 1.0),
         map = null
@@ -33,4 +39,5 @@ class BasicMaterial extends Material {
         }
 
     }
+    
 }

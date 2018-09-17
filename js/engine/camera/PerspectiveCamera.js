@@ -1,4 +1,8 @@
-class PerspectiveCamera extends Camera {
+
+import { mat4 } from '../lib/gl-matrix.js';
+import Camera from './Camera.js';
+
+export default class PerspectiveCamera extends Camera {
 
     constructor(fovy, aspect, near, far) {
         super();

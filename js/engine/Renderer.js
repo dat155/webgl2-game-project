@@ -1,10 +1,14 @@
 
+import { ATTRIBUTE_LOCATION, COMPONENT, TYPE } from './lib/constants.js';
+import { mat4 } from './lib/gl-matrix.js';
+import Mesh from './Mesh.js';
+
 /**
  * A WebGL2 renderer.
  *
  * @class Renderer
  */
-class Renderer {
+export default class Renderer {
     constructor(width, height) {
         this.domElement = document.createElement('canvas');
         this.domElement.width = width;
@@ -76,8 +80,8 @@ class Renderer {
             let attribute = geometry.attributes[name];
 
             // setup and enable vertex attributes (Using the predefined and constant locations.)
-            this.gl.vertexAttribPointer(Constants.ATTRIBUTE_LOCATION[name], Constants.TYPE[attribute.type], attribute.componentType, false, 0, attribute.byteOffset);
-            this.gl.enableVertexAttribArray(Constants.ATTRIBUTE_LOCATION[name]);
+            this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[attribute.type], attribute.componentType, false, 0, attribute.byteOffset);
+            this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
 
         }
 
@@ -109,7 +113,7 @@ class Renderer {
 
         if (mesh.geometry.indices) {
             const indices = mesh.geometry.indices;
-            const offset = indices.byteOffset / Constants.COMPONENT.SIZE[indices.componentType];
+            const offset = indices.byteOffset / COMPONENT.SIZE[indices.componentType];
 
             this.gl.drawElements(this.gl.TRIANGLES, indices.count, indices.componentType, offset);
 
@@ -146,7 +150,6 @@ class Renderer {
 
         this.gl.activeTexture(this.gl.TEXTURE0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-        //this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
 
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
@@ -179,20 +182,20 @@ class Renderer {
             image[i].addEventListener('load', () => {
                 ct++;
                 if (ct == 6) {
+
                     this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, cubeMap);
-                    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-                    var targets = [
-                        this.gl.TEXTURE_CUBE_MAP_POSITIVE_X, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-                        this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-                        this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-                    ];
+
                     for (let j = 0; j < 6; j++) {
-                        this.gl.texImage2D(targets[j], 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image[j]);
+
+                        let target = this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + j;
+
+                        this.gl.texImage2D(target, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image[j]);
                         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
                         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
                         this.gl.texParameterf(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
                         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);
                     }
+
                     this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
                 }
             });

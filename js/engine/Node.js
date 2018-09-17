@@ -1,10 +1,12 @@
 
+import { mat4, vec3, quat } from './lib/gl-matrix.js';
+
 /**
  * A scenegraph node.
  *
  * @class Node
  */
-class Node {
+export default class Node {
 
     constructor(parent = null) {
 

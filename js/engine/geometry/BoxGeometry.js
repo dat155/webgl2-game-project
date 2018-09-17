@@ -1,4 +1,14 @@
-class BoxGeometry {
+
+import { COMPONENT } from '../lib/constants.js';
+import { vec3 } from '../lib/gl-matrix.js';
+
+/**
+ * Generates the geometry for a box.
+ *
+ * @export
+ * @class BoxGeometry
+ */
+export default class BoxGeometry {
     constructor({ flipNormals = false } = {}) {
 
         let indices = [];
@@ -87,20 +97,20 @@ class BoxGeometry {
             POSITION: {
                 count: vertices.length,
                 byteOffset: 0,
-                componentType: Constants.COMPONENT.TYPE.FLOAT,
+                componentType: COMPONENT.TYPE.FLOAT,
                 type: 'VEC3'
             },
             NORMAL: {
                 count: normals.length,
                 byteOffset: vertices.length * 4,
-                componentType: Constants.COMPONENT.TYPE.FLOAT,
+                componentType: COMPONENT.TYPE.FLOAT,
                 type: 'VEC3'
             },
             TEXCOORD: {
                 count: uvs.length,
                 byteOffset: vertices.length * 4 + normals.length * 4,
-                componentType: Constants.COMPONENT.TYPE.FLOAT,
-                type: 'VEC3'
+                componentType: COMPONENT.TYPE.FLOAT,
+                type: 'VEC2'
             }
         };
 
@@ -116,13 +126,13 @@ class BoxGeometry {
 
         // set the size of indices dynamically based on the total number of vertices.
         if (vertices.count < Math.pow(2, 8)) {
-            this.indices.componentType = Constants.COMPONENT.TYPE.UNSIGNED_BYTE;
+            this.indices.componentType = COMPONENT.TYPE.UNSIGNED_BYTE;
             this.indexBuffer = new Uint8Array(indices);
         } else if (vertices.count < Math.pow(2, 16)) {
-            this.indices.componentType = Constants.COMPONENT.TYPE.UNSIGNED_SHORT;
+            this.indices.componentType = COMPONENT.TYPE.UNSIGNED_SHORT;
             this.indexBuffer = new Uint16Array(indices);
         } else {
-            this.indices.componentType = Constants.COMPONENT.TYPE.UNSIGNED_INT;
+            this.indices.componentType = COMPONENT.TYPE.UNSIGNED_INT;
             this.indexBuffer = new Uint32Array(indices);
         }
 

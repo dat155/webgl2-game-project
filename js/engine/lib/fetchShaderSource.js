@@ -5,7 +5,7 @@
  * @param { String } url
  * @returns { String }
  */
-function fetchShaderSource(url) {
+export default function fetchShaderSource(url) {
     const request = new XMLHttpRequest();
 
     request.overrideMimeType('text/plain');

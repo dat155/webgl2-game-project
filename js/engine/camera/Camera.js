@@ -1,4 +1,8 @@
-class Camera extends Node {
+
+import { mat4 } from '../lib/gl-matrix.js';
+import Node from '../Node.js';
+
+export default class Camera extends Node {
 
     constructor() {
         super();
