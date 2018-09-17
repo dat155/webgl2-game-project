@@ -1,5 +1,6 @@
 
-import { Renderer, Node, Mesh, BoxGeometry, BasicMaterial, CubeMapMaterial, PerspectiveCamera, FPSController } from './engine/index.js';
+import { vec3 } from './engine/lib/gl-matrix.js';
+import { Renderer, Node, Mesh, BoxGeometry, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
 
 
 // create renderer and canvas element, append canvas to DOM.
@@ -8,6 +9,7 @@ document.body.appendChild(renderer.domElement);
 
 let scene = new Node();
 
+// add stuff to the scene:
 
 let boxGeometry = new BoxGeometry();
 let boxMaterial = new BasicMaterial({
@@ -19,28 +21,12 @@ let box = new Mesh(boxGeometry, boxMaterial);
 scene.add(box);
 box.applyTranslation(0, 0, -20);
 
+/// CAMERA SETUP:
+let moveNode = new Node();
+scene.add(moveNode);
+
 let camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
-scene.add(camera);
-
-
-/// Skybox:
-let skyBoxGeometry = new BoxGeometry({ flipNormals: true });
-let skyBoxMaterial = new CubeMapMaterial({
-    map: renderer.loadCubeMap([
-        'resources/skybox/right.png',
-        'resources/skybox/left.png',
-        'resources/skybox/top.png',
-        'resources/skybox/bottom.png',
-        'resources/skybox/front.png',
-        'resources/skybox/back.png'
-    ])
-});
-
-let skyBox = new Mesh(skyBoxGeometry, skyBoxMaterial);
-
-skyBox.setScale(1500, 1500, 1500);
-
-scene.add(skyBox);
+moveNode.add(camera);
 
 
 // handle resizing of the viewport.
@@ -53,8 +39,7 @@ window.addEventListener('resize', () => {
 
 }, false);
 
-
-let cameraController = new FPSController(camera);
+let mouseLookController = new MouseLookController(camera);
 
 let canvas = renderer.domElement;
 
@@ -112,38 +97,61 @@ window.addEventListener('keyup', (e) => {
     }
 });
 
+
+/// SKYBOX SETUP:
+let skyBoxGeometry = new BoxGeometry({ flipNormals: true });
+let skyBoxMaterial = new CubeMapMaterial({
+    map: renderer.loadCubeMap([
+        'resources/skybox/right.png',
+        'resources/skybox/left.png',
+        'resources/skybox/top.png',
+        'resources/skybox/bottom.png',
+        'resources/skybox/front.png',
+        'resources/skybox/back.png'
+    ])
+});
+
+let skyBox = new Mesh(skyBoxGeometry, skyBoxMaterial);
+skyBox.setScale(1500, 1500, 1500);
+
+moveNode.add(skyBox);
+
+let velocity = vec3.fromValues(0.0, 0.0, 0.0);
+
 let then = 0;
 function loop(now) {
 
     let delta = now - then;
     then = now;
 
+    mouseLookController.update(pitch, yaw);
+
+    // reset mouse movement accumulator for each frame.
+    yaw = 0;
+    pitch = 0;
+
     const moveSpeed = move.speed * delta;
 
-    let longitudinal = 0;
-    let lateral = 0;
+    vec3.set(velocity, 0.0, 0.0, 0.0);
 
     if (move.forward) {
-        longitudinal += moveSpeed;
+        velocity[2] -= moveSpeed;
     }
 
     if (move.backward) {
-        longitudinal -= moveSpeed;
+        velocity[2] += moveSpeed;
     }
 
     if (move.left) {
-        lateral += moveSpeed;
+        velocity[0] -= moveSpeed;
     }
 
     if (move.right) {
-        lateral -= moveSpeed;
+        velocity[0] += moveSpeed;
     }
 
-    cameraController.update(pitch, yaw, longitudinal, lateral);
-
-    // reset movement buffers.
-    yaw = 0;
-    pitch = 0;
+    vec3.transformQuat(velocity, velocity, camera.rotation);
+    moveNode.applyTranslation(...velocity);
 
     // update the world matrices of the entire scene graph (Since we are starting at the root node).
     scene.tick();

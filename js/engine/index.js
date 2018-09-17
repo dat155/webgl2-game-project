@@ -12,4 +12,4 @@ export { default as BasicMaterial } from './material/BasicMaterial.js';
 export { default as CubeMapMaterial } from './material/CubeMapMaterial.js';
 export { default as PerspectiveCamera } from './camera/PerspectiveCamera.js';
 
-export { default as FPSController } from './controls/FPSController.js';
+export { default as MouseLookController } from './controls/MouseLookController.js';
