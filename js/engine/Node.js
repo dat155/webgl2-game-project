@@ -41,6 +41,7 @@ export default class Node {
     }
 
     tick(parentWorldMatrix = null) {
+
         this.updateLocalMatrix(); // Recalculate this node's localMatrix.
 
         // Do this if the node has a parent
@@ -69,42 +70,82 @@ export default class Node {
     }
 
     setScale(x, y, z) {
+
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            throw Error('Error! Invalid arguments (missing or not a number).');
+        }
+
         this.scale[0] = x;
         this.scale[1] = y;
         this.scale[2] = z;
     }
 
     applyScale(x, y, z) {
+
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            throw Error('Error! Invalid arguments (missing or not a number).');
+        }
+
         this.scale[0] *= x;
         this.scale[1] *= y;
         this.scale[2] *= z;
     }
 
     setTranslation(x, y, z) {
+
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            throw Error('Error! Invalid arguments (missing or not a number).');
+        }
+
         this.translation[0] = x;
         this.translation[1] = y;
         this.translation[2] = z;
     }
 
     applyTranslation(x, y, z) {
+
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            throw Error('Error! Invalid arguments (missing or not a number).');
+        }
+
         this.translation[0] += x;
         this.translation[1] += y;
         this.translation[2] += z;
     }
 
     setRotationFromEuler(x, y, z) {
+
+        if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            throw Error('Error! Invalid arguments (missing or not a number).');
+        }
+
         quat.fromEuler(this.rotation, x, y, z);
     }
 
     rotateX(rad) {
+
+        if (typeof rad !== 'number') {
+            throw Error('Error! Invalid argument (missing or not a number).');
+        }
+
         quat.rotateX(this.rotation, this.rotation, rad);
     }
 
     rotateY(rad) {
+
+        if (typeof rad !== 'number') {
+            throw Error('Error! Invalid argument (missing or not a number).');
+        }
+
         quat.rotateY(this.rotation, this.rotation, rad);
     }
 
     rotateZ(rad) {
+
+        if (typeof rad !== 'number') {
+            throw Error('Error! Invalid argument (missing or not a number).');
+        }
+
         quat.rotateZ(this.rotation, this.rotation, rad);
     }
 }
