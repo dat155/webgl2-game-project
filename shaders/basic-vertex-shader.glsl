@@ -1,5 +1,7 @@
 #version 300 es
 
+__DEFINES__
+
 precision mediump float;
 
 in vec4 vPosition;

@@ -1,7 +1,24 @@
 
 class Shader {
-    constructor(gl, vertexShaderSource, fragmentShaderSource) {
-        const program = this.constructor.build(gl, vertexShaderSource, fragmentShaderSource);
+    constructor(gl, material, vertexShaderSource, fragmentShaderSource) {
+
+        const { defines } = material;
+
+        let definesString = "";
+
+        for (let define in defines) {
+
+            const value = defines[define];
+
+            if (value !== null) {
+                definesString += `#define ${define} ${value}\n`;
+            } else {
+                definesString += `#define ${define}\n`;
+            }
+            
+        }
+
+        const program = this.constructor.build(gl, vertexShaderSource.replace('__DEFINES__', definesString), fragmentShaderSource.replace('__DEFINES__', definesString));
         gl.useProgram(program);
 
         // Get standard uniform locations.
@@ -39,6 +56,14 @@ class Shader {
             throw Error('Could not build shaders.');
         }
 
+        // detach shaders allowing webgl to clean up.
+        gl.detachShader(program, vertexShader);
+        gl.detachShader(program, fragmentShader);
+
         return program;
+    }
+
+    destroy() {
+        gl.deleteProgram(this.program);
     }
 }

@@ -9,7 +9,10 @@ class BasicMaterial extends Material {
 
         this.uniforms.color = color;
         this.uniforms.map = map;
-        this.uniforms.hasMap = map ? true : false;
+
+        if (map !== null) {
+            this.defines.HAS_MAP = true;
+        }
 
     }
 
@@ -19,9 +22,7 @@ class BasicMaterial extends Material {
 
             gl.uniform4fv(this.shader.uniformLocations.color, this.uniforms.color);
 
-            gl.uniform1i(this.shader.uniformLocations.hasMap, this.uniforms.hasMap);
-
-            if (this.uniforms.hasMap) {
+            if (this.uniforms.map) {
                 gl.activeTexture(gl.TEXTURE0);
                 gl.bindTexture(gl.TEXTURE_2D, this.uniforms.map);
                 gl.uniform1i(this.shader.uniformLocations.map, 0);

@@ -5,6 +5,8 @@ class Material {
             throw Error('WarpGL: You must provide a Shader-class when extending Material.');
         }
         this.Shader = Shader;
+
         this.uniforms = {};
+        this.defines = {};
     }
 }

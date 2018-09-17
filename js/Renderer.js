@@ -19,7 +19,7 @@ class Renderer {
         this.gl.viewport(0, 0, this.domElement.width, this.domElement.height);
         this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         this.gl.enable(this.gl.DEPTH_TEST);
-        // this.gl.enable(this.gl.CULL_FACE);
+        this.gl.enable(this.gl.CULL_FACE);
 
     }
 
@@ -85,7 +85,7 @@ class Renderer {
 
         /// initiate shaderprogram
         let material = mesh.material;
-        material.shader = new material.Shader(this.gl);
+        material.shader = new material.Shader(this.gl, material);
 
     }
 
