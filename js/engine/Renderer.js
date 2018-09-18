@@ -46,50 +46,54 @@ export default class Renderer {
 
     load(mesh) {
 
-        /// load geometry:
+        if (mesh.geometry.vao === null) {
 
-        let geometry = mesh.geometry;
+            /// load geometry:
+            let geometry = mesh.geometry;
 
-        let vao = this.gl.createVertexArray();
-        this.gl.bindVertexArray(vao);
+            let vao = this.gl.createVertexArray();
+            this.gl.bindVertexArray(vao);
 
-        if (geometry.indices) {
+            if (geometry.indices) {
 
-            // create buffer (allocates a buffer on the GPU and gives us a reference)
-            let buffer = this.gl.createBuffer();
+                // create buffer (allocates a buffer on the GPU and gives us a reference)
+                let buffer = this.gl.createBuffer();
 
-            // bind buffer to the ELEMENT_ARRAY_BUFFER target.
-            this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer);
+                // bind buffer to the ELEMENT_ARRAY_BUFFER target.
+                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer);
 
-            // upload the data.
-            this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer, this.gl.STATIC_DRAW);
+                // upload the data.
+                this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer, this.gl.STATIC_DRAW);
 
+            }
+
+            // create buffer
+            let buffer = this.gl.createBuffer()
+
+            // bind buffer to the ARRAY_BUFFER target.
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+
+            // upload the positions, normals, uvs, etc...
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, geometry.attributeBuffer, this.gl.STATIC_DRAW);
+
+            for (let name in geometry.attributes) {
+
+                let attribute = geometry.attributes[name];
+
+                // setup and enable vertex attributes (Using the predefined and constant locations.)
+                this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[attribute.type], attribute.componentType, false, 0, attribute.byteOffset);
+                this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
+
+            }
+
+            geometry.vao = vao;
         }
 
-        // create buffer
-        let buffer = this.gl.createBuffer()
-
-        // bind buffer to the ARRAY_BUFFER target.
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-
-        // upload the positions, normals, uvs, etc...
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, geometry.attributeBuffer, this.gl.STATIC_DRAW);
-
-        for (let name in geometry.attributes) {
-
-            let attribute = geometry.attributes[name];
-
-            // setup and enable vertex attributes (Using the predefined and constant locations.)
-            this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[attribute.type], attribute.componentType, false, 0, attribute.byteOffset);
-            this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
-
+        if (mesh.material.shader === null) {
+            /// initiate shaderprogram
+            let material = mesh.material;
+            material.shader = new material.Shader(this.gl, material);
         }
-
-        geometry.vao = vao;
-
-        /// initiate shaderprogram
-        let material = mesh.material;
-        material.shader = new material.Shader(this.gl, material);
 
     }
 
@@ -131,7 +135,7 @@ export default class Renderer {
 
         for (let mesh of meshes) {
 
-            if (mesh.geometry.vao === null) {
+            if (mesh.geometry.vao === null || mesh.material.shader === null) {
                 this.load(mesh);
             }
 

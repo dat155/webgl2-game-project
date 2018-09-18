@@ -9,6 +9,37 @@ import { vec3 } from '../lib/gl-matrix.js';
  * @class BoxGeometry
  */
 export default class BoxGeometry {
+
+    /**
+     * Gives us the min and max vectors.
+     * This is useful for bounding box checks.
+     *
+     * @static
+     * @param {Array<Number>} vertices
+     * @returns { min: Number, max: Number }
+     * @memberof BoxGeometry
+     */
+    static getMinMax(vertices) {
+
+        let min = vec3.fromValues(0, 0, 0);
+        let max = vec3.fromValues(0, 0, 0);
+
+        for (let i = 0; i < (vertices.length / 3); i += 3) {
+
+            min[0] = Math.min(min[0], vertices[i + 0]);
+            min[1] = Math.min(min[1], vertices[i + 1]);
+            min[2] = Math.min(min[2], vertices[i + 2]);
+
+            max[0] = Math.max(max[0], vertices[i + 0]);
+            max[1] = Math.max(max[1], vertices[i + 1]);
+            max[2] = Math.max(max[2], vertices[i + 2]);
+
+        }
+
+        return { min, max };
+
+    }
+
     constructor({ flipNormals = false } = {}) {
 
         let indices = [];
@@ -93,12 +124,16 @@ export default class BoxGeometry {
             dataView.setFloat32((vertices.length + normals.length + i) * 4, uvs[i], isLittleEndian);
         }
 
+        let { min, max } = this.constructor.getMinMax(vertices);
+
         this.attributes = {
             POSITION: {
                 count: vertices.length,
                 byteOffset: 0,
                 componentType: COMPONENT.TYPE.FLOAT,
-                type: 'VEC3'
+                type: 'VEC3',
+                min,
+                max
             },
             NORMAL: {
                 count: normals.length,
@@ -114,7 +149,7 @@ export default class BoxGeometry {
             }
         };
 
-        
+
         this.indices = {
             count: indices.length,
             byteOffset: 0,
@@ -135,6 +170,8 @@ export default class BoxGeometry {
             this.indices.componentType = COMPONENT.TYPE.UNSIGNED_INT;
             this.indexBuffer = new Uint32Array(indices);
         }
+
+
 
         // instantiate Vertex Array Object variable to null.
         this.vao = null;

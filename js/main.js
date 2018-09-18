@@ -1,6 +1,6 @@
 
 import { vec3 } from './engine/lib/gl-matrix.js';
-import { Renderer, Node, Mesh, BoxGeometry, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
+import { Renderer, Node, Mesh, BoxGeometry, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController, PlaneGeometry } from './engine/index.js';
 
 
 // create renderer and canvas element, append canvas to DOM.
@@ -13,21 +13,37 @@ let scene = new Node();
 
 let boxGeometry = new BoxGeometry();
 let boxMaterial = new BasicMaterial({
-    color: [1.0, 0.0, 1.0, 1.0]
+    color: [1.0, 1.0, 1.0, 1.0],
+    map: renderer.loadTexture('resources/dev_grid.png')
 });
 
-let box = new Mesh(boxGeometry, boxMaterial);
 
-scene.add(box);
-box.applyTranslation(0, 0, -20);
+let planeGeometry = new PlaneGeometry();
+let floorMaterial = new BasicMaterial({
+    map: renderer.loadTexture('resources/dev_dfloor.png')
+});
 
-/// CAMERA SETUP:
-let moveNode = new Node();
-scene.add(moveNode);
+let floor = new Mesh(planeGeometry, floorMaterial);
+floor.applyScale(8, 1, 8);
+floor.applyTranslation(0, -0.5, 0);
+scene.add(floor);
+
+for (let x = 0; x < 8; x++) {
+    for (let y = 0; y < 8; y++) {
+
+        if (Math.random() < 0.15) {
+            let box = new Mesh(boxGeometry, boxMaterial);
+            box.setTranslation(x - (8/2) + 0.5, 0, y - (8/2) + 0.5);
+    
+            scene.add(box);
+        }
+        
+    }
+}
+
+// CAMERA SETUP:
 
 let camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
-moveNode.add(camera);
-
 
 // handle resizing of the viewport.
 window.addEventListener('resize', () => {
@@ -39,7 +55,14 @@ window.addEventListener('resize', () => {
 
 }, false);
 
+
+// MOUSE LOOK CONTROLLER SETUP.
+
 let mouseLookController = new MouseLookController(camera);
+
+let moveNode = new Node(scene);
+
+moveNode.add(camera);
 
 let canvas = renderer.domElement;
 
@@ -62,6 +85,8 @@ document.addEventListener('pointerlockchange', () => {
         canvas.removeEventListener('mousemove', updateCamRotation, false);
     }
 });
+
+// MOVEMENT CONTROLLER SETUP:
 
 let move = {
     forward: false,
