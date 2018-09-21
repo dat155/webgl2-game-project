@@ -1,5 +1,5 @@
 
-import Node from './Node.js';
+import Node from '../Node.js';
 /**
  * A drawable scenegraph node with material and geometry.
  *
@@ -7,10 +7,10 @@ import Node from './Node.js';
  * @extends {Node}
  */
 export default class Mesh extends Node {
-    constructor(geometry, material) {
+    constructor(primitives) {
         super();
 
-        this.geometry = geometry;
-        this.material = material;
+        this.primitives = primitives;
+
     }
 }
