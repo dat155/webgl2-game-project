@@ -1,7 +1,7 @@
 
 import { ATTRIBUTE_LOCATION, COMPONENT, TYPE } from './lib/constants.js';
 import { mat4 } from './lib/gl-matrix.js';
-import Mesh from './Mesh.js';
+import Mesh from './mesh/Mesh.js';
 
 /**
  * A WebGL2 renderer.
@@ -44,85 +44,122 @@ export default class Renderer {
 
     }
 
-    load(mesh) {
+    load(primitive) {
 
-        if (mesh.geometry.vao === null) {
-
-            /// load geometry:
-            let geometry = mesh.geometry;
+        if (primitive.vao === null) {
 
             let vao = this.gl.createVertexArray();
             this.gl.bindVertexArray(vao);
 
-            if (geometry.indices) {
+            if (primitive.indices !== null) {
 
-                // create buffer (allocates a buffer on the GPU and gives us a reference)
-                let buffer = this.gl.createBuffer();
+                let accessor = primitive.indices;
+                let bufferView = accessor.bufferView;
 
-                // bind buffer to the ELEMENT_ARRAY_BUFFER target.
-                this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer);
+                if (bufferView.glBuffer) {
 
-                // upload the data.
-                this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer, this.gl.STATIC_DRAW);
+                    // a buffer already exists on the GPU.
+                    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bufferView.glBuffer);
 
-            }
+                } else {
 
-            // create buffer
-            let buffer = this.gl.createBuffer()
+                    // create buffer (allocates a buffer on the GPU and gives us a reference)
+                    let buffer = this.gl.createBuffer();
 
-            // bind buffer to the ARRAY_BUFFER target.
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+                    // bind buffer to the ELEMENT_ARRAY_BUFFER target.
+                    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer);
 
-            // upload the positions, normals, uvs, etc...
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, geometry.attributeBuffer, this.gl.STATIC_DRAW);
+                    let dataView = new DataView(bufferView.buffer, bufferView.byteOffset, bufferView.byteLength);
 
-            for (let name in geometry.attributes) {
+                    // upload the data.
+                    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
 
-                let attribute = geometry.attributes[name];
+                    bufferView.glBuffer = buffer;
 
-                // setup and enable vertex attributes (Using the predefined and constant locations.)
-                this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[attribute.type], attribute.componentType, false, 0, attribute.byteOffset);
-                this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
+                }
 
             }
 
-            geometry.vao = vao;
+            // create and link attribute accessors, and possibly upload bufferView to GPU.
+            for (let name in primitive.attributes) {
+
+                let accessor = primitive.attributes[name];
+                let bufferView = accessor.bufferView;
+
+                if (bufferView.glBuffer) {
+
+                    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bufferView.glBuffer);
+
+                } else {
+
+                    // create buffer and upload data.
+
+                    let buffer = this.gl.createBuffer();
+                    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+
+                    let dataView = new DataView(bufferView.buffer, bufferView.byteOffset, bufferView.byteLength);
+
+                    this.gl.bufferData(this.gl.ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
+
+                    // setup and enable vertex attributes (Using the predefined and constant locations.)
+                    this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[accessor.type], accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
+                    this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
+
+                    bufferView.glBuffer = buffer;
+
+                }
+            }
+
+            primitive.vao = vao;
+
         }
 
-        if (mesh.material.shader === null) {
+        if (primitive.material.shader === null) {
+
             /// initiate shaderprogram
-            let material = mesh.material;
+            let material = primitive.material;
             material.shader = new material.Shader(this.gl, material);
+
         }
 
     }
 
     draw(mesh, camera) {
 
-        let shader = mesh.material.shader;
-
-        this.gl.useProgram(shader.program);
-
         let modelViewMatrix = mat4.multiply(mat4.create(), camera.viewMatrix, mesh.worldMatrix);
 
-        // upload the projection matrix, and the model view matrix:
-        this.gl.uniformMatrix4fv(shader.uniformLocations.projectionMatrix, false, camera.projectionMatrix);
-        this.gl.uniformMatrix4fv(shader.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+        for (let primitive of mesh.primitives) {
 
-        // upload shader specific uniforms:
-        mesh.material.uploadUniforms(this.gl);
+            if (primitive.vao === null || primitive.material.shader === null) {
+                this.load(primitive);
+            }
 
-        // bind the geometry:
-        this.gl.bindVertexArray(mesh.geometry.vao);
+            let shader = primitive.material.shader;
+            this.gl.useProgram(shader.program);
 
-        if (mesh.geometry.indices) {
-            const indices = mesh.geometry.indices;
-            const offset = indices.byteOffset / COMPONENT.SIZE[indices.componentType];
+            // upload the projection matrix, and the model view matrix:
+            this.gl.uniformMatrix4fv(shader.uniformLocations.projectionMatrix, false, camera.projectionMatrix);
+            this.gl.uniformMatrix4fv(shader.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
-            this.gl.drawElements(this.gl.TRIANGLES, indices.count, indices.componentType, offset);
+            // upload shader specific uniforms:
+            primitive.material.uploadUniforms(this.gl);
 
-        } else {
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, mesh.geometry.attributes.POSITION.count / 3);
+            // bind the geometry:
+            this.gl.bindVertexArray(primitive.vao);
+
+            if (primitive.indices) {
+
+                const indices = primitive.indices;
+                const offset = indices.byteOffset / COMPONENT.SIZE[indices.componentType];
+
+                this.gl.drawElements(this.gl.TRIANGLES, indices.count, indices.componentType, offset);
+
+            } else {
+
+                this.gl.drawArrays(this.gl.TRIANGLES, 0, primitive.attributes.POSITION.count / 3);
+                
+            }
+
         }
 
     }
@@ -134,10 +171,6 @@ export default class Renderer {
         const meshes = this.getMeshNodes(scene);
 
         for (let mesh of meshes) {
-
-            if (mesh.geometry.vao === null || mesh.material.shader === null) {
-                this.load(mesh);
-            }
 
             this.draw(mesh, camera);
 

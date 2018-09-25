@@ -2,6 +2,7 @@
 import { COMPONENT } from '../lib/constants.js';
 import { getMinMax } from './utils.js';
 
+import BufferView from '../mesh/BufferView.js';
 import Accessor from '../mesh/Accessor.js';
 import Primitive from '../mesh/Primitive.js';
 
@@ -47,14 +48,14 @@ export default (material, mode) => {
     ];
 
 
-    const attributeBuffer = new Float32Array(vertices.concat(normals, uvs));
+    const bufferView = new BufferView(new Float32Array(vertices.concat(normals, uvs)).buffer);
 
     const { min, max } = getMinMax(vertices);
 
     const attributes = {
-        POSITION: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
-        NORMAL: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
-        TEXCOORD: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
+        POSITION: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
+        NORMAL: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
+        TEXCOORD: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
     };
 
     const primitive = new Primitive(attributes, material, null, mode);

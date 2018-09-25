@@ -7,6 +7,10 @@ import Node from '../Node.js';
  * @extends {Node}
  */
 export default class Mesh extends Node {
+
+    /**
+     * @param {Primitive[]} primitives 
+     */
     constructor(primitives) {
         super();
 

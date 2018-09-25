@@ -3,6 +3,7 @@ import { vec3 } from '../lib/gl-matrix.js';
 import { COMPONENT } from '../lib/constants.js';
 import { getMinMax } from './utils.js';
 
+import BufferView from '../mesh/BufferView.js';
 import Accessor from '../mesh/Accessor.js';
 import Primitive from '../mesh/Primitive.js';
 
@@ -14,7 +15,7 @@ import Primitive from '../mesh/Primitive.js';
  * @param {boolean} [flipNormals=false]
  * @returns {Primitive}
  */
-export default (material, mode, flipNormals = false) => {
+export default (material, flipNormals = false, mode) => {
 
     const indices = [];
     const vertices = [];
@@ -101,9 +102,9 @@ export default (material, mode, flipNormals = false) => {
     let { min, max } = getMinMax(vertices);
 
     const attributes = {
-        POSITION: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
-        NORMAL: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
-        TEXCOORD: new Accessor(attributeBuffer, COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
+        POSITION: new Accessor(new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
+        NORMAL: new Accessor(new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
+        TEXCOORD: new Accessor(new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
     };
 
     // set the size of indices dynamically based on the total number of vertices.
@@ -121,7 +122,7 @@ export default (material, mode, flipNormals = false) => {
         indexBuffer = new Uint32Array(indices);
     }
 
-    const indicesAccessor = new Accessor(indexBuffer, componentType, 'SCALAR', indices.length);
+    const indicesAccessor = new Accessor(new BufferView(indexBuffer.buffer), componentType, 'SCALAR', indices.length);
     
     const primitive = new Primitive(attributes, material, indicesAccessor, mode);
 

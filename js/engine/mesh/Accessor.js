@@ -27,7 +27,7 @@ export default class Accessor {
 
     /**
      * Creates an instance of Accessor.
-     * @param {ArrayBuffer} buffer
+     * @param {BufferView} bufferView
      * @param {integer} componentType
      * @param {string} type
      * @param {integer} count
@@ -37,9 +37,9 @@ export default class Accessor {
      * @param {boolean} [normalized=false]
      * @memberof Accessor
      */
-    constructor(buffer, componentType, type, count, byteOffset = 0, min, max, normalized = false) {
+    constructor(bufferView, componentType, type, count, byteOffset = 0, min, max, normalized = false) {
 
-        this.buffer = buffer;
+        this.bufferView = bufferView;
 
         this.type = type;
         this.componentType = componentType;

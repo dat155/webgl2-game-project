@@ -1,6 +1,6 @@
 
 import { vec3 } from './engine/lib/gl-matrix.js';
-import { Renderer, Node, Mesh, BoxGeometry, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController, PlaneGeometry } from './engine/index.js';
+import { Renderer, Node, Mesh, Primitives, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
 
 
 // create renderer and canvas element, append canvas to DOM.
@@ -10,29 +10,28 @@ document.body.appendChild(renderer.domElement);
 let scene = new Node();
 
 // add stuff to the scene:
+let floorMaterial = new BasicMaterial({
+    map: renderer.loadTexture('resources/dev_dfloor.png')
+});
+let planePrimitive = Primitives.createPlane(floorMaterial);
 
-let boxGeometry = new BoxGeometry();
+
+let floor = new Mesh([planePrimitive]);
+floor.applyScale(8, 1, 8);
+floor.applyTranslation(0, -0.5, 0);
+scene.add(floor);
+
 let boxMaterial = new BasicMaterial({
     color: [1.0, 1.0, 1.0, 1.0],
     map: renderer.loadTexture('resources/dev_grid.png')
 });
-
-
-let planeGeometry = new PlaneGeometry();
-let floorMaterial = new BasicMaterial({
-    map: renderer.loadTexture('resources/dev_dfloor.png')
-});
-
-let floor = new Mesh(planeGeometry, floorMaterial);
-floor.applyScale(8, 1, 8);
-floor.applyTranslation(0, -0.5, 0);
-scene.add(floor);
+let boxPrimitive = Primitives.createBox(boxMaterial);
 
 for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
 
         if (Math.random() < 0.15) {
-            let box = new Mesh(boxGeometry, boxMaterial);
+            let box = new Mesh([boxPrimitive]);
             box.setTranslation(x - (8/2) + 0.5, 0, y - (8/2) + 0.5);
     
             scene.add(box);
@@ -124,7 +123,6 @@ window.addEventListener('keyup', (e) => {
 
 
 /// SKYBOX SETUP:
-let skyBoxGeometry = new BoxGeometry({ flipNormals: true });
 let skyBoxMaterial = new CubeMapMaterial({
     map: renderer.loadCubeMap([
         'resources/skybox/right.png',
@@ -135,8 +133,10 @@ let skyBoxMaterial = new CubeMapMaterial({
         'resources/skybox/back.png'
     ])
 });
+let skyBoxPrimitive = Primitives.createBox(skyBoxMaterial, true);
 
-let skyBox = new Mesh(skyBoxGeometry, skyBoxMaterial);
+
+let skyBox = new Mesh([skyBoxPrimitive]);
 skyBox.setScale(1500, 1500, 1500);
 
 moveNode.add(skyBox);
