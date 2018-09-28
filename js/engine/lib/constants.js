@@ -36,7 +36,7 @@ export const TYPE = Object.freeze({
     MAT4: 16
 });
 
-export const ATTRIBUTE_LOCATION = Object.freeze({
+export const ATTRIBUTE = Object.freeze({
     POSITION: 0,
     NORMAL: 1,
     TEXCOORD: 2

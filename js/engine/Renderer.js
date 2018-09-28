@@ -1,5 +1,5 @@
 
-import { ATTRIBUTE_LOCATION, COMPONENT, TYPE } from './lib/constants.js';
+import { COMPONENT, TYPE, ATTRIBUTE } from './lib/constants.js';
 import { mat4 } from './lib/gl-matrix.js';
 import Mesh from './mesh/Mesh.js';
 
@@ -81,9 +81,8 @@ export default class Renderer {
             }
 
             // create and link attribute accessors, and possibly upload bufferView to GPU.
-            for (let name in primitive.attributes) {
+            for (let accessor of primitive.attributes) {
 
-                let accessor = primitive.attributes[name];
                 let bufferView = accessor.bufferView;
 
                 if (bufferView.glBuffer) {
@@ -102,8 +101,8 @@ export default class Renderer {
                     this.gl.bufferData(this.gl.ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
 
                     // setup and enable vertex attributes (Using the predefined and constant locations.)
-                    this.gl.vertexAttribPointer(ATTRIBUTE_LOCATION[name], TYPE[accessor.type], accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
-                    this.gl.enableVertexAttribArray(ATTRIBUTE_LOCATION[name]);
+                    this.gl.vertexAttribPointer(accessor.attribute, TYPE[accessor.type], accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
+                    this.gl.enableVertexAttribArray(accessor.attribute);
 
                     bufferView.glBuffer = buffer;
 
@@ -156,7 +155,7 @@ export default class Renderer {
 
             } else {
 
-                this.gl.drawArrays(this.gl.TRIANGLES, 0, primitive.attributes.POSITION.count / 3);
+                this.gl.drawArrays(this.gl.TRIANGLES, 0, primitive.attributes[ATTRIBUTE.POSITION].count / 3);
                 
             }
 

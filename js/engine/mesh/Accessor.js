@@ -27,6 +27,7 @@ export default class Accessor {
 
     /**
      * Creates an instance of Accessor.
+     * @param {integer} attribute Attribute type, for example 0 (POSITION) (check contants.js)
      * @param {BufferView} bufferView
      * @param {integer} componentType
      * @param {string} type
@@ -37,7 +38,9 @@ export default class Accessor {
      * @param {boolean} [normalized=false]
      * @memberof Accessor
      */
-    constructor(bufferView, componentType, type, count, byteOffset = 0, min, max, normalized = false) {
+    constructor(attribute, bufferView, componentType, type, count, byteOffset = 0, min, max, normalized = false) {
+
+        this.attribute = attribute;
 
         this.bufferView = bufferView;
 
