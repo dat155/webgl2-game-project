@@ -99,13 +99,16 @@ export default (material, flipNormals = false, mode) => {
         dataView.setFloat32((vertices.length + normals.length + i) * 4, uvs[i], isLittleEndian);
     }
 
+    const bufferView = new BufferView(attributeBuffer);
+
     let { min, max } = getMinMax(vertices);
 
-    const attributes = [
-        new Accessor(ATTRIBUTE.POSITION, new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
-        new Accessor(ATTRIBUTE.NORMAL, new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
-        new Accessor(ATTRIBUTE.TEXCOORD, new BufferView(attributeBuffer), COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
-    ];
+
+    const attributes = {
+        POSITION: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC3', vertices.length, 0, min, max),
+        NORMAL: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC3', normals.length, vertices.length * 4),
+        TEXCOORD_0: new Accessor(bufferView, COMPONENT.TYPE.FLOAT, 'VEC2', uvs.length, vertices.length * 4 + normals.length * 4)
+    };
 
     // set the size of indices dynamically based on the total number of vertices.
     let componentType = null;
@@ -122,8 +125,8 @@ export default (material, flipNormals = false, mode) => {
         indexBuffer = new Uint32Array(indices);
     }
 
-    const indicesAccessor = new Accessor(null, new BufferView(indexBuffer.buffer), componentType, 'SCALAR', indices.length);
-    
+    const indicesAccessor = new Accessor(new BufferView(indexBuffer.buffer), componentType, 'SCALAR', indices.length);
+
     const primitive = new Primitive(attributes, material, indicesAccessor, mode);
 
     return primitive;

@@ -39,5 +39,5 @@ export const TYPE = Object.freeze({
 export const ATTRIBUTE = Object.freeze({
     POSITION: 0,
     NORMAL: 1,
-    TEXCOORD: 2
+    TEXCOORD_0: 2
 });

@@ -10,7 +10,7 @@ export default class Primitive {
 
     /**
      * Creates an instance of Primitive.
-     * @param {object} attributes An array of accessors. A POSITION-attribute accessor must be specified.
+     * @param {object} attributes An object containing accessors. A POSITION-attribute accessor must be specified.
      * @param {Material} material
      * @param {Accessor} [indices=null] An accessor pointing to an index buffer.
      * @param {integer} [mode=4]
