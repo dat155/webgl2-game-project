@@ -80,10 +80,12 @@ export default class Renderer {
 
             }
 
-            // create and link attribute accessors, and possibly upload bufferView to GPU.
-            for (let accessor of primitive.attributes) {
 
-                let bufferView = accessor.bufferView;
+            // create and link attribute accessors, and possibly upload bufferView to GPU.
+            for (const name in primitive.attributes) {
+
+                const accessor = primitive.attributes[name];
+                const bufferView = accessor.bufferView;
 
                 if (bufferView.glBuffer) {
 
@@ -93,23 +95,26 @@ export default class Renderer {
 
                     // create buffer and upload data.
 
-                    let buffer = this.gl.createBuffer();
+                    const buffer = this.gl.createBuffer();
                     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
 
-                    let dataView = new DataView(bufferView.buffer, bufferView.byteOffset, bufferView.byteLength);
+                    const dataView = new DataView(bufferView.buffer, bufferView.byteOffset, bufferView.byteLength);
 
                     this.gl.bufferData(this.gl.ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
-
-                    // setup and enable vertex attributes (Using the predefined and constant locations.)
-                    this.gl.vertexAttribPointer(accessor.attribute, TYPE[accessor.type], accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
-                    this.gl.enableVertexAttribArray(accessor.attribute);
 
                     bufferView.glBuffer = buffer;
 
                 }
+
+                // setup and enable vertex attributes (Using the predefined and constant locations.)
+                this.gl.vertexAttribPointer(ATTRIBUTE[name], TYPE[accessor.type], accessor.componentType, accessor.normalized, bufferView.byteStride, accessor.byteOffset);
+                this.gl.enableVertexAttribArray(ATTRIBUTE[name]);
+
             }
 
             primitive.vao = vao;
+
+            this.gl.bindVertexArray(null);
 
         }
 
@@ -155,8 +160,8 @@ export default class Renderer {
 
             } else {
 
-                this.gl.drawArrays(this.gl.TRIANGLES, 0, primitive.attributes[ATTRIBUTE.POSITION].count / 3);
-                
+                this.gl.drawArrays(this.gl.TRIANGLES, 0, primitive.attributes.POSITION.count / 3);
+
             }
 
         }
@@ -185,7 +190,9 @@ export default class Renderer {
         let texture = this.gl.createTexture();
 
         this.gl.activeTexture(this.gl.TEXTURE0);
+        
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.pixelStorei(this.gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, this.gl.NONE);
 
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
@@ -220,6 +227,7 @@ export default class Renderer {
                 if (ct == 6) {
 
                     this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, cubeMap);
+                    this.gl.pixelStorei(this.gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, this.gl.NONE);
 
                     for (let j = 0; j < 6; j++) {
 
