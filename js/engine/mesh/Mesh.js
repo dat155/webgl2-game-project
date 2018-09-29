@@ -1,5 +1,4 @@
 import { getMinMax } from '../primitives/utils.js';
-import { ATTRIBUTE } from '../lib/constants.js';
 import Node from '../Node.js';
 /**
  * A drawable scenegraph node with material and geometry.
@@ -17,20 +16,24 @@ export default class Mesh extends Node {
 
         this.primitives = primitives;
 
+        this.boundingBox = null;
+        this.updateBoundingBox();
+
     }
 
-    getBoundingBox() {
+    updateBoundingBox() {
 
         let vertices = [];
 
         for (let primitive of this.primitives) {
-            let { min, max } = primitive.attributes[ATTRIBUTE.POSITION];
+            let { min, max } = primitive.attributes.POSITION;
 
             vertices.push(...min);
             vertices.push(...max);
         }
 
-        return getMinMax(vertices);
+        this.boundingBox = getMinMax(vertices);
 
     }
+    
 }
