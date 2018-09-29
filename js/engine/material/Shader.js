@@ -57,8 +57,8 @@ export default class Shader {
         }
 
         // detach shaders allowing webgl to clean up.
-        // gl.detachShader(program, vertexShader);
-        // gl.detachShader(program, fragmentShader);
+        gl.detachShader(program, vertexShader);
+        gl.detachShader(program, fragmentShader);
 
         return program;
     }
