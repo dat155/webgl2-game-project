@@ -23,7 +23,7 @@ export default class ObstacleManager {
 
         this.sizeX = 8;
         this.sizeY = 8 * 4;
-        this.density = 0.15;
+        this.density = 0.10;
 
         this.nextChunk = null;
         this.currentChunk = null;
