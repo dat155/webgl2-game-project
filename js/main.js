@@ -1,7 +1,8 @@
 
 import { vec3 } from './engine/lib/gl-matrix.js';
 import { Renderer, Scene, Node, Mesh, Primitives, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
-import { CollisionObject, PhysicsManager } from './engine/index.js';
+import { CollisionObject, PhysicsManager } from './physics/index.js';
+import ChunkManager from './chunks/ChunkManager.js';
 
 
 // create renderer and canvas element, append canvas to DOM.
@@ -19,10 +20,18 @@ const boxMaterial = new BasicMaterial({
 });
 const boxPrimitive = Primitives.createBox(boxMaterial);
 
-const player = new Mesh([boxPrimitive]);
+const player = new Node();
+
+player.applyTranslation(0, 0, 1);
+
+const playerMesh = new Mesh([boxPrimitive]);
+playerMesh.applyScale(0.5, 0.5, 0.5);
+
+player.add(playerMesh);
+
 scene.add(player);
 
-const playerCollisionObject = new CollisionObject(player);
+const playerCollisionObject = new CollisionObject(playerMesh);
 
 playerCollisionObject.setOnIntersectListener((delta, entity) => {
     scene.remove(entity.mesh);
@@ -30,37 +39,6 @@ playerCollisionObject.setOnIntersectListener((delta, entity) => {
 });
 
 physicsManager.add(playerCollisionObject);
-
-// add stuff to the scene:
-const floorMaterial = new BasicMaterial({
-    map: renderer.loadTexture('resources/dev_dfloor.png')
-});
-const planePrimitive = Primitives.createPlane(floorMaterial);
-
-const floor = new Mesh([planePrimitive]);
-floor.applyScale(8, 1, 8);
-floor.applyTranslation(0, -0.5, 0);
-scene.add(floor);
-
-// add some randomly positioned boxes.
-for (let x = 0; x < 8; x++) {
-    for (let y = 0; y < 8; y++) {
-
-        //if (Math.random() < 0.15) {
-            let box = new Mesh([boxPrimitive]);
-            box.setTranslation(x - (8 / 2) + 0.5, 0, y - (8 / 2) + 0.5);
-
-            scene.add(box);
-
-            // add collision object.
-            const boxCollisionObject = new CollisionObject(box);
-            physicsManager.add(boxCollisionObject);
-        //}
-
-    }
-}
-
-
 
 // CAMERA SETUP:
 let camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
@@ -199,8 +177,14 @@ skyBox.setScale(1500, 1500, 1500);
 
 moveNode.add(skyBox);
 
-
 const velocity = vec3.fromValues(0.0, 0.0, 0.0);
+
+
+// CHUNKS
+
+const chunkManager = new ChunkManager(scene, physicsManager, renderer.loadTexture('resources/dev_dfloor.png'), renderer.loadTexture('resources/dev_grid.png'));
+
+
 
 // this tick is very important, to make sure nodes are positioned correctly before the first physics update.
 scene.tick();
@@ -233,9 +217,18 @@ function loop(now) {
 
     if (move.mode === 0) {
 
+        //velocity[2] -= moveSpeed * 0.3;
         player.applyTranslation(...velocity);
 
     } else if (move.mode === 1) {
+
+        if (move.forward) {
+            velocity[2] -= moveSpeed;
+        }
+
+        if (move.backward) {
+            velocity[2] += moveSpeed;
+        }
 
         // free flight.
         mouseLookController.update(pitch, yaw);
@@ -250,6 +243,9 @@ function loop(now) {
     yaw = 0;
     pitch = 0;
 
+    // update chunks here.
+    chunkManager.update(player.translation[2]);
+
     // physics updates here.
     physicsManager.update(delta);
 
@@ -259,5 +255,7 @@ function loop(now) {
 
     // Ask the the browser to draw when it's convenient
     window.requestAnimationFrame(loop);
+
 }
+
 window.requestAnimationFrame(loop);
