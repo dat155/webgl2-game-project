@@ -10,8 +10,10 @@ let renderer = new Renderer(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const scene = new Scene();
-
 const physicsManager = new PhysicsManager();
+const floorTexture = renderer.loadTexture('resources/dev_dfloor.png');
+const blockTexture = renderer.loadTexture('resources/dev_grid.png');
+const obstacleManager = new ObstacleManager(scene, physicsManager, floorTexture, blockTexture);
 
 // playground setup.
 const boxMaterial = new BasicMaterial({
@@ -181,12 +183,6 @@ moveNode.add(skyBox);
 const velocity = vec3.fromValues(0.0, 0.0, 0.0);
 
 
-// CHUNKS
-
-const obstacleManager = new ObstacleManager(scene, physicsManager, renderer.loadTexture('resources/dev_dfloor.png'), renderer.loadTexture('resources/dev_grid.png'));
-
-
-
 // this tick is very important, to make sure nodes are positioned correctly before the first physics update.
 scene.tick();
 
@@ -218,7 +214,7 @@ function loop(now) {
 
     if (move.mode === 0) {
 
-        velocity[2] -= moveSpeed * 0.5;
+        velocity[2] -= moveSpeed * 2;
         player.applyTranslation(...velocity);
 
     } else if (move.mode === 1) {
