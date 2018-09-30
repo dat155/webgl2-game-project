@@ -1,5 +1,5 @@
 
-import { vec3 } from '../lib/gl-matrix.js';
+import { vec3 } from '../engine/lib/gl-matrix.js';
 
 export default class PhysicsManager {
 

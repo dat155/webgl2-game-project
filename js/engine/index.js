@@ -14,9 +14,6 @@ export { default as PerspectiveCamera } from './camera/PerspectiveCamera.js';
 
 export { default as MouseLookController } from './controls/MouseLookController.js';
 
-export { default as CollisionObject } from './physics/CollisionObject.js';
-export { default as PhysicsManager } from './physics/PhysicsManager.js';
-
 import { default as createPlane } from './primitives/createPlane.js';
 import { default as createBox } from './primitives/createBox.js';
 
