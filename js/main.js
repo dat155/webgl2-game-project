@@ -2,7 +2,7 @@
 import { vec3 } from './engine/lib/gl-matrix.js';
 import { Renderer, Scene, Node, Mesh, Primitives, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
 import { CollisionObject, PhysicsManager } from './physics/index.js';
-import ChunkManager from './chunks/ChunkManager.js';
+import ObstacleManager from './obstacles/ObstacleManager.js';
 
 
 // create renderer and canvas element, append canvas to DOM.
@@ -41,7 +41,8 @@ playerCollisionObject.setOnIntersectListener((delta, entity) => {
 physicsManager.add(playerCollisionObject);
 
 // CAMERA SETUP:
-let camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
+const camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
+const cameraTilt = -28.5;
 
 // handle resizing of the viewport.
 window.addEventListener('resize', () => {
@@ -56,12 +57,12 @@ window.addEventListener('resize', () => {
 
 // MOUSE LOOK CONTROLLER SETUP.
 
-let mouseLookController = new MouseLookController(camera);
+const mouseLookController = new MouseLookController(camera);
 
-let moveNode = new Node();
+const moveNode = new Node();
 moveNode.add(camera);
 
-let canvas = renderer.domElement;
+const canvas = renderer.domElement;
 
 canvas.addEventListener('click', () => {
     canvas.requestPointerLock();
@@ -90,7 +91,7 @@ let move = {
     backward: false,
     left: false,
     right: false,
-    speed: 0.01,
+    speed: 0.005,
     mode: 0
 };
 
@@ -118,7 +119,7 @@ window.addEventListener('keydown', (e) => {
             player.add(moveNode);
             moveNode.setTranslation(0, 4, 8);
 
-            camera.setRotationFromEuler(-25.0, 0.0, 0.0);
+            camera.setRotationFromEuler(cameraTilt, 0.0, 0.0);
 
         }
     }
@@ -155,7 +156,7 @@ scene.remove(moveNode);
 player.add(moveNode);
 moveNode.setTranslation(0, 4, 8);
 
-camera.setRotationFromEuler(-25.0, 0.0, 0.0);
+camera.setRotationFromEuler(cameraTilt, 0.0, 0.0);
 
 /// SKYBOX SETUP:
 let skyBoxMaterial = new CubeMapMaterial({
@@ -182,7 +183,7 @@ const velocity = vec3.fromValues(0.0, 0.0, 0.0);
 
 // CHUNKS
 
-const chunkManager = new ChunkManager(scene, physicsManager, renderer.loadTexture('resources/dev_dfloor.png'), renderer.loadTexture('resources/dev_grid.png'));
+const obstacleManager = new ObstacleManager(scene, physicsManager, renderer.loadTexture('resources/dev_dfloor.png'), renderer.loadTexture('resources/dev_grid.png'));
 
 
 
@@ -217,7 +218,7 @@ function loop(now) {
 
     if (move.mode === 0) {
 
-        //velocity[2] -= moveSpeed * 0.3;
+        velocity[2] -= moveSpeed * 0.5;
         player.applyTranslation(...velocity);
 
     } else if (move.mode === 1) {
@@ -244,7 +245,7 @@ function loop(now) {
     pitch = 0;
 
     // update chunks here.
-    chunkManager.update(player.translation[2]);
+    obstacleManager.update(player.translation[2]);
 
     // physics updates here.
     physicsManager.update(delta);

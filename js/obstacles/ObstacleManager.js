@@ -1,7 +1,7 @@
 import { Mesh, Primitives, BasicMaterial } from '../engine/index.js';
 import { CollisionObject } from '../physics/index.js';
 
-export default class ChunkManager {
+export default class ObstacleManager {
     constructor(scene, physicsManager, floorTexture, blockTexture) {
 
         this.scene = scene;

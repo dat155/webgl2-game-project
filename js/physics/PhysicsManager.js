@@ -32,7 +32,7 @@ export default class PhysicsManager {
     update(delta) {
 
         // TODO: cache transformed bounding box to avoid computing it n^2 times.
-        // Get below O(n^2) by using some kind of spatial paritioning? (Octree?)
+        // Advanced: Get below O(n^2) by using some kind of spatial paritioning? (Octree?)
 
         // Currently we assume that the meshes have axis-aligned bounding boxes,
         // but if a rotation is introduced to the worldMatrix we will have a problem.
