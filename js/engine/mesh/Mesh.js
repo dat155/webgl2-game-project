@@ -1,6 +1,7 @@
 import { getMinMax } from '../primitives/utils.js';
-import Node from '../Node.js';
 import { vec3 } from '../lib/gl-matrix.js';
+
+import Node from '../Node.js';
 /**
  * A drawable scenegraph node with material and geometry.
  *
@@ -30,7 +31,7 @@ export default class Mesh extends Node {
         super.tick(parentWorldMatrix);
 
         vec3.transformMat4(this.boundingBox.min, this.localBoundingBox.min, this.worldMatrix);
-        vec3.transformMat4(this.boundingBox.min, this.localBoundingBox.min, this.worldMatrix);
+        vec3.transformMat4(this.boundingBox.max, this.localBoundingBox.max, this.worldMatrix);
     }
 
     updateLocalBoundingBox() {
