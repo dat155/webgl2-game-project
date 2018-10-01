@@ -40,6 +40,10 @@ export default class Node {
         }
     }
 
+    updateLocalMatrix() {
+        mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.translation, this.scale);
+    }
+
     tick(parentWorldMatrix = null) {
 
         this.updateLocalMatrix(); // Recalculate this node's localMatrix.
@@ -63,10 +67,6 @@ export default class Node {
             this.children[i].tick(this.worldMatrix);
         }
         
-    }
-
-    updateLocalMatrix() {
-        mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.translation, this.scale);
     }
 
     setScale(x, y, z) {
