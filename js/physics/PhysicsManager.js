@@ -34,9 +34,8 @@ export default class PhysicsManager {
         // Currently we assume that the meshes have axis-aligned bounding boxes,
         // but if a rotation is introduced to the worldMatrix we will have a problem.
         // We can implement some way to calculate a bounding box after having rotated the mesh,
-        // i.e. transform the original bounding box and take the min-max (inaccurate but fast),
+        // i.e. transform the original bounding box and take the min-max of the new vertices (inaccurate but fast),
         // or transform every vertex of the model and take the min-max (precise but slow).
-        
         // Alternatively use the separating axis theorem (SAT).
 
         for (let i = 0; i < this.entities.length; i += 1) {
