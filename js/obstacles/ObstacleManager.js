@@ -22,7 +22,7 @@ export default class ObstacleManager {
         this.planePrimitive = Primitives.createPlane(floorMaterial);
 
         this.sizeX = 8;
-        this.sizeY = 8 * 4;
+        this.sizeY = 8 * 2;
         this.density = 0.10;
 
         this.nextChunk = null;
