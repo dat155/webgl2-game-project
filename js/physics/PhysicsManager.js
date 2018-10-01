@@ -46,11 +46,6 @@ export default class PhysicsManager {
 
             const entity = this.entities[i];
 
-            const boundingBox1 = {
-                min: vec3.transformMat4(vec3.create(), entity.mesh.boundingBox.min, entity.mesh.worldMatrix),
-                max: vec3.transformMat4(vec3.create(), entity.mesh.boundingBox.max, entity.mesh.worldMatrix),
-            };
-
             for (let j = 0; j < this.entities.length; j += 1) {
 
                 if (i === j) {
@@ -59,13 +54,8 @@ export default class PhysicsManager {
 
                 const entity2 = this.entities[j];
 
-                const boundingBox2 = {
-                    min: vec3.transformMat4(vec3.create(), entity2.mesh.boundingBox.min, entity2.mesh.worldMatrix),
-                    max: vec3.transformMat4(vec3.create(), entity2.mesh.boundingBox.max, entity2.mesh.worldMatrix),
-                };
-
                 // assume axis-aligned bounding box.
-                if (PhysicsManager.intersectAABB(boundingBox1, boundingBox2)) {
+                if (PhysicsManager.intersectAABB(entity.mesh.boundingBox, entity2.mesh.boundingBox)) {
 
                     if (entity._onIntersect !== null) {
                         entity._onIntersect(delta, entity2);
