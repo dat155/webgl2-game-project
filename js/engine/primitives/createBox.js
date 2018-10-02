@@ -1,6 +1,6 @@
 
 import { vec3 } from '../lib/gl-matrix.js';
-import { COMPONENT, ATTRIBUTE } from '../lib/constants.js';
+import { COMPONENT } from '../lib/constants.js';
 import { getMinMax } from './utils.js';
 
 import BufferView from '../mesh/BufferView.js';
