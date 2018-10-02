@@ -44,6 +44,12 @@ export default class Node {
         mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.translation, this.scale);
     }
 
+    /**
+     * Calculates worldMatrix.
+     * Is called recursively on every child.
+     * 
+     * @param {mat4} parentWorldMatrix 
+     */
     tick(parentWorldMatrix = null) {
 
         this.updateLocalMatrix(); // Recalculate this node's localMatrix.
