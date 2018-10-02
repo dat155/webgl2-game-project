@@ -210,8 +210,8 @@ skyBox.setScale(1500, 1500, 1500);
 moveNode.add(skyBox);
 
 
-// this tick is very important, to make sure nodes are positioned correctly before the first physics update.
-scene.tick();
+// this update is very important, to make sure nodes are positioned correctly before the first physics update.
+scene.update();
 
 // We create a vec3 to hold the players velocity (this way we avoid allocating a new one every frame).
 const velocity = vec3.fromValues(0.0, 0.0, 0.0);
@@ -268,9 +268,8 @@ function loop(now) {
     // physics updates here.
     physicsManager.update(delta);
 
-    // update the world matrices of the entire scene graph (Since we are starting at the root node).
-    scene.tick();
-
+    // update the world matrices of the entire scene graph.
+    scene.update();
     
     renderer.render(scene, camera);
 
