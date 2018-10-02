@@ -1,8 +1,9 @@
 
-import { vec3 } from '../engine/lib/gl-matrix.js';
-
 export default class PhysicsManager {
 
+    /**
+     * MDN article on intersection: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+     */
     static intersectAABB(a, b) {
         return (a.min[0] <= b.max[0] && a.max[0] >= b.min[0])
             && (a.min[1] <= b.max[1] && a.max[1] >= b.min[1])
