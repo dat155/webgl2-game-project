@@ -29,7 +29,7 @@ export default class ObstacleManager {
         this.currentChunk = null;
         this.previousChunk = null;
 
-        this.initialize();
+        this.reset();
     }
 
     generateChunk(offset) {
@@ -124,9 +124,25 @@ export default class ObstacleManager {
 
     }
 
-    initialize() {
+    reset() {
 
-        this.nextChunk = this.generateChunk(-this.sizeY);
+        if (this.previousChunk !== null) {
+            this.destroyChunk(this.previousChunk);
+            this.previousChunk = null;
+        }
+
+        if (this.currentChunk !== null) {
+            this.destroyChunk(this.currentChunk);
+            this.currentChunk = null;
+        }
+
+        if (this.nextChunk !== null) {
+            this.destroyChunk(this.nextChunk);
+            this.nextChunk = null;
+        }
+        
+
+        this.nextChunk = this.generateChunk(-this.sizeY); // negative z is forward.
         this.currentChunk = this.generateChunk(0);
 
     }
