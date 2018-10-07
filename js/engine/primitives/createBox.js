@@ -7,6 +7,8 @@ import BufferView from '../mesh/BufferView.js';
 import Accessor from '../mesh/Accessor.js';
 import Primitive from '../mesh/Primitive.js';
 
+const isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
+
 /**
  * Generates a box, and returns a primitive.
  * 
@@ -82,7 +84,6 @@ export default (material, flipNormals = false, mode) => {
     const attributeBuffer = new ArrayBuffer(vertices.length * 4 + normals.length * 4 + uvs.length * 4); // 4, as in 4 bytes per element.
 
     const dataView = new DataView(attributeBuffer);
-    const isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
 
     // copy over vertices.
     for (let i = 0; i < vertices.length; i++) {
