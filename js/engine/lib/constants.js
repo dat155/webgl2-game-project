@@ -39,5 +39,14 @@ export const TYPE = Object.freeze({
 export const ATTRIBUTE = Object.freeze({
     POSITION: 0,
     NORMAL: 1,
-    TEXCOORD_0: 2
+    TANGENT: 2,
+    TEXCOORD_0: 3,
+    TEXCOORD_1: 4,
+    COLOR_0: 5,
+    JOINTS_0: 6,
+    WEIGHTS_0: 7
+});
+
+export const BINDING = Object.freeze({
+    LIGHT: 0
 });
