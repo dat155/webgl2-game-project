@@ -23,9 +23,12 @@ export default class Shader {
 
         // Get standard uniform locations.
         this.uniformLocations = {
-            projectionMatrix: gl.getUniformLocation(program, 'projectionMatrix'),
-            modelViewMatrix: gl.getUniformLocation(program, 'modelViewMatrix')
+            modelViewMatrix: gl.getUniformLocation(program, 'modelViewMatrix'),
+            modelViewProjectionMatrix: gl.getUniformLocation(program, 'modelViewProjectionMatrix'),
+            normalMatrix: gl.getUniformLocation(program, 'normalMatrix')
         };
+
+        this.uniformBlocks = [];
 
         this.program = program;
     }
@@ -57,8 +60,8 @@ export default class Shader {
         }
 
         // detach shaders allowing webgl to clean up.
-        gl.detachShader(program, vertexShader);
-        gl.detachShader(program, fragmentShader);
+        //gl.detachShader(program, vertexShader);
+        //gl.detachShader(program, fragmentShader);
 
         return program;
     }

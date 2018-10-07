@@ -1,26 +1,30 @@
 #version 300 es
 
+__DEFINES__
+
 precision mediump float;
 
-in vec4 vPosition;
-in vec3 vNormal;
-in vec2 vTextureCoordinate;
-out vec2 fTextureCoordinate;
+layout(location = 0) in vec4 in_position;
+layout(location = 1) in vec3 in_normal;
+layout(location = 3) in vec2 in_texcoord_0;
 
-out vec3 interpolatedNormal;
-out vec3 vertexPosition;
-
+uniform mat4 modelViewProjectionMatrix;
 uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
+
+out vec3 position;
+out vec3 normal;
+out vec2 texcoord_0;
 
 void main() {
 
-	vec4 vp = modelViewMatrix * vPosition;
-	vertexPosition = vp.xyz / vp.w;
+    vec4 pos = modelViewMatrix * in_position;
+    position = vec3(pos.xyz) / pos.w;
 
-	interpolatedNormal = normalMatrix * vNormal;
-	
-	fTextureCoordinate = vTextureCoordinate;
-    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    normal = normalize(normalMatrix * in_normal);
+
+    texcoord_0 = in_texcoord_0;
+    
+    gl_Position = modelViewProjectionMatrix * in_position;
+
 }

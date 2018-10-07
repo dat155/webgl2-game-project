@@ -1,7 +1,6 @@
 
-import { COMPONENT, TYPE, ATTRIBUTE } from './lib/constants.js';
-import { mat4 } from './lib/gl-matrix.js';
-import Mesh from './mesh/Mesh.js';
+import { COMPONENT, TYPE, ATTRIBUTE, BINDING } from './lib/constants.js';
+import { mat4, mat3, vec4 } from './lib/gl-matrix.js';
 
 /**
  * A WebGL2 renderer.
@@ -25,6 +24,12 @@ export default class Renderer {
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
 
+        this.lightUniformBuffer = this.gl.createBuffer();
+        this.gl.bindBufferBase(this.gl.UNIFORM_BUFFER, BINDING.LIGHT, this.lightUniformBuffer);
+
+        this.lightBuffer = null;
+        this.numberOfLights = 0;
+
     }
 
     setSize(width, height) {
@@ -34,17 +39,23 @@ export default class Renderer {
         this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
     }
 
-    getMeshNodes(node) {
+    initializeShader(primitive, numberOfLights = 0) {
 
-        if (node instanceof Mesh) {
-            return [node].concat(...node.children.map(this.getMeshNodes.bind(this)));
-        } else {
-            return [].concat(...node.children.map(this.getMeshNodes.bind(this)));
+        /// initiate shaderprogram
+        let material = primitive.material;
+
+        material.defines.NUMBER_OF_LIGHTS = numberOfLights;
+        material.shader = new material.Shader(this.gl, material);
+
+        const shader = material.shader;
+
+        for (const name of shader.uniformBlocks) {
+            this.gl.uniformBlockBinding(shader.program, this.gl.getUniformBlockIndex(shader.program, name), BINDING[name]);
         }
 
     }
 
-    load(primitive) {
+    load(primitive, numberOfLights) {
 
         if (primitive.vao === null) {
 
@@ -120,30 +131,40 @@ export default class Renderer {
 
         if (primitive.material.shader === null) {
 
-            /// initiate shaderprogram
-            let material = primitive.material;
-            material.shader = new material.Shader(this.gl, material);
+            this.initializeShader(primitive, numberOfLights);
 
         }
 
     }
 
-    draw(mesh, camera) {
+    draw(mesh, camera, numberOfLights) {
 
-        let modelViewMatrix = mat4.multiply(mat4.create(), camera.viewMatrix, mesh.worldMatrix);
+        const modelViewMatrix = mat4.multiply(mat4.create(), camera.viewMatrix, mesh.worldMatrix);
+        const modelViewProjectionMatrix = mat4.multiply(mat4.create(), camera.projectionMatrix, modelViewMatrix);
 
-        for (let primitive of mesh.primitives) {
+        const normalMatrix = mat3.normalFromMat4(mat3.create(), modelViewMatrix);
+
+        for (const primitive of mesh.primitives) {
 
             if (primitive.vao === null || primitive.material.shader === null) {
-                this.load(primitive);
+                this.load(primitive, numberOfLights);
+            }
+
+            if (primitive.material.defines.NUMBER_OF_LIGHTS !== numberOfLights) {
+
+                // TODO: this is unneccessary if the shader does not use lights.
+                // recompile shader with new number of lights.
+                this.initializeShader(primitive, numberOfLights);
+
             }
 
             let shader = primitive.material.shader;
             this.gl.useProgram(shader.program);
 
             // upload the projection matrix, and the model view matrix:
-            this.gl.uniformMatrix4fv(shader.uniformLocations.projectionMatrix, false, camera.projectionMatrix);
+            this.gl.uniformMatrix4fv(shader.uniformLocations.modelViewProjectionMatrix, false, modelViewProjectionMatrix);
             this.gl.uniformMatrix4fv(shader.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+            this.gl.uniformMatrix3fv(shader.uniformLocations.normalMatrix, false, normalMatrix);
 
             // upload shader specific uniforms:
             primitive.material.uploadUniforms(this.gl);
@@ -172,11 +193,51 @@ export default class Renderer {
 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-        const meshes = this.getMeshNodes(scene);
+        const lights = scene.getLightNodes();
+
+        if (this.numberOfLights !== lights.length || this.lightBuffer === null) {
+            this.lightBuffer = new Float32Array(4 + (lights.length * 12));
+            this.numberOfLights = lights.length;
+        }
+
+        for (let i = 0; i < lights.length; i++) {
+
+            const light = lights[i];
+
+            const modelViewMatrix = mat4.multiply(mat4.create(), camera.viewMatrix, light.worldMatrix);
+            const position = vec4.transformMat4(vec4.create(), [...light.translation, 1.0], modelViewMatrix);
+
+            const offset = i * 12;
+
+            this.lightBuffer[offset + 0] = position[0];
+            this.lightBuffer[offset + 1] = position[1];
+            this.lightBuffer[offset + 2] = position[2];
+            this.lightBuffer[offset + 3] = position[3];
+
+            this.lightBuffer[offset + 4] = light.diffuse[0];
+            this.lightBuffer[offset + 5] = light.diffuse[1];
+            this.lightBuffer[offset + 6] = light.diffuse[2];
+            this.lightBuffer[offset + 7] = light.diffuse[3];
+            
+            this.lightBuffer[offset + 8] = light.specular[0];
+            this.lightBuffer[offset + 9] = light.specular[1];
+            this.lightBuffer[offset + 10] = light.specular[2];
+            this.lightBuffer[offset + 11] = light.specular[3];
+
+        }
+
+        this.lightBuffer[lights.length * 12 + 0] = scene.ambient[0];
+        this.lightBuffer[lights.length * 12 + 1] = scene.ambient[1];
+        this.lightBuffer[lights.length * 12 + 2] = scene.ambient[2];
+        this.lightBuffer[lights.length * 12 + 3] = scene.ambient[3];
+
+        this.gl.bufferData(this.gl.UNIFORM_BUFFER, this.lightBuffer, this.gl.DYNAMIC_DRAW);
+
+        const meshes = scene.getMeshNodes();
 
         for (let mesh of meshes) {
 
-            this.draw(mesh, camera);
+            this.draw(mesh, camera, lights.length);
 
         }
 
@@ -190,7 +251,7 @@ export default class Renderer {
         let texture = this.gl.createTexture();
 
         this.gl.activeTexture(this.gl.TEXTURE0);
-        
+
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
         this.gl.pixelStorei(this.gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, this.gl.NONE);
 

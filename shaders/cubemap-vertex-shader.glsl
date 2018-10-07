@@ -6,12 +6,11 @@ precision mediump float;
 
 layout(location = 0) in vec4 POSITION;
 
-uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
-
 out vec3 vCoordinates;
+
+uniform mat4 modelViewProjectionMatrix;
 
 void main() {
     vCoordinates = POSITION.xyz;
-    gl_Position = projectionMatrix * modelViewMatrix * POSITION;
+    gl_Position = modelViewProjectionMatrix * POSITION;
 }

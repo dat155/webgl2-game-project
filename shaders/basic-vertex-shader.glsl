@@ -5,14 +5,13 @@ __DEFINES__
 precision mediump float;
 
 layout(location = 0) in vec4 POSITION;
-layout(location = 2) in vec2 TEXCOORD_0;
+layout(location = 3) in vec2 TEXCOORD_0;
 
 out vec2 fTextureCoordinate;
 
-uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
+uniform mat4 modelViewProjectionMatrix;
 
 void main() {
 	fTextureCoordinate = TEXCOORD_0;
-    gl_Position = projectionMatrix * modelViewMatrix * POSITION;
+    gl_Position = modelViewProjectionMatrix * POSITION;
 }
