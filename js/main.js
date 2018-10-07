@@ -1,6 +1,6 @@
 
-import { vec3 } from './engine/lib/gl-matrix.js';
-import { Renderer, Scene, Node, Mesh, Primitives, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
+import { vec3, vec4 } from './engine/lib/gl-matrix.js';
+import { Renderer, Scene, Node, Mesh, Primitives, Light, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
 import { CollisionObject, PhysicsManager } from './physics/index.js';
 import ObstacleManager from './obstacles/ObstacleManager.js';
 
@@ -20,7 +20,7 @@ const blockTexture = renderer.loadTexture('resources/dev_grid.png');
 const obstacleManager = new ObstacleManager(scene, physicsManager, floorTexture, blockTexture);
 
 const boxMaterial = new BasicMaterial({
-    color: [1.0, 1.0, 1.0, 1.0],
+    color: vec4.fromValues(1.0, 0.8, 0.8, 1.0),
     map: renderer.loadTexture('resources/dev_grid.png')
 });
 
@@ -29,6 +29,13 @@ const boxPrimitive = Primitives.createBox(boxMaterial);
 
 // We create a scenegraph Node to represent the player in the world.
 const player = new Node(scene); // We pass scene as an argument to make the player a child of the scene node.
+
+const light = new Light({
+    diffuse: vec4.fromValues(134/255, 31/255, 42/255, 1.0),
+    specular: vec4.fromValues(0.4, 0.4, 0.4, 1.0)
+});
+
+player.add(light);
 
 // Move the player back slightly (-z is forward) so that the first chunk is generated properly.
 player.applyTranslation(0, 0, 1);
@@ -187,8 +194,6 @@ moveNode.setTranslation(0, 4, 8);
 
 // Tilt the camera down slightly.
 camera.setRotationFromEuler(cameraTilt, 0.0, 0.0);
-
-
 
 let skyBoxMaterial = new CubeMapMaterial({
     map: renderer.loadCubeMap([

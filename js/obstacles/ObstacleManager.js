@@ -1,4 +1,6 @@
-import { Mesh, Primitives, BasicMaterial } from '../engine/index.js';
+import { vec4 } from '../engine/lib/gl-matrix.js';
+
+import { Mesh, Primitives, PhongMaterial } from '../engine/index.js';
 import { CollisionObject } from '../physics/index.js';
 
 export default class ObstacleManager {
@@ -7,15 +9,15 @@ export default class ObstacleManager {
         this.scene = scene;
         this.physicsManager = physicsManager;
 
-        const boxMaterial = new BasicMaterial({
-            color: [1.0, 1.0, 1.0, 1.0],
+        const boxMaterial = new PhongMaterial({
+            shininess: 15,
             map: blockTexture
         });
 
         this.boxPrimitive = Primitives.createBox(boxMaterial);
 
-
-        const floorMaterial = new BasicMaterial({
+        const floorMaterial = new PhongMaterial({
+            shininess: 3,
             map: floorTexture
         });
 
