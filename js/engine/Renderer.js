@@ -231,6 +231,7 @@ export default class Renderer {
         this.lightBuffer[lights.length * 12 + 2] = scene.ambient[2];
         this.lightBuffer[lights.length * 12 + 3] = scene.ambient[3];
 
+        // TODO: Use bufferSubData when we're just updating data.
         this.gl.bufferData(this.gl.UNIFORM_BUFFER, this.lightBuffer, this.gl.DYNAMIC_DRAW);
 
         const meshes = scene.getMeshNodes();
