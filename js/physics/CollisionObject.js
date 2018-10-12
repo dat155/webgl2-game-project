@@ -7,9 +7,15 @@ export default class CollisionObject {
 
         this._onIntersect = null;
 
+        this._destroy = false;
+
     }
 
     setOnIntersectListener(listener) {
-        this._onIntersect = listener;
+        this._onIntersect = listener.bind(this);
     }
-}
+
+    destroy() {
+        this._destroy = true;
+    }
+ }

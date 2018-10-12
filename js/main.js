@@ -60,8 +60,8 @@ playerCollisionObject.setOnIntersectListener((delta, entity) => {
     // We remove the Mesh from the Scene,
     scene.remove(entity.mesh);
 
-    // and the collision object from the PhysicsManager.
-    physicsManager.remove(entity);
+    // and destroy the collision object.
+    entity.destroy();
 });
 
 physicsManager.add(playerCollisionObject);
