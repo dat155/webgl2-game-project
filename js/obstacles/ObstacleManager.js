@@ -31,10 +31,12 @@ export default class ObstacleManager {
         this.currentChunk = null;
         this.previousChunk = null;
 
+        this.offset = 6;
+
         this.reset();
     }
 
-    generateChunk(offset) {
+    generateChunk(offset, noBlocks = false) {
 
         const sizeX = this.sizeX;
         const sizeY = this.sizeY;
@@ -52,34 +54,36 @@ export default class ObstacleManager {
         const blocks = [];
         const populated = new Map();
 
-        for (let i = 0; i < numberOfBlocks; i++) {
+        if (noBlocks === false) {
+            for (let i = 0; i < numberOfBlocks; i++) {
 
-            let x = Math.floor(Math.random() * sizeX);
-            let y = Math.floor(Math.random() * sizeY);
+                let x = Math.floor(Math.random() * sizeX);
+                let y = Math.floor(Math.random() * sizeY);
 
-            while (true) {
+                while (true) {
 
-                if (populated.has((y * sizeX) + x)) {
+                    if (populated.has((y * sizeX) + x)) {
 
-                    x = Math.floor(Math.random() * sizeX);
-                    y = Math.floor(Math.random() * sizeY);
+                        x = Math.floor(Math.random() * sizeX);
+                        y = Math.floor(Math.random() * sizeY);
 
-                } else {
-                    break;
+                    } else {
+                        break;
+                    }
+
                 }
 
+                let block = new Mesh([this.boxPrimitive]);
+                block.setTranslation(x - (sizeX / 2) + 0.5, 0, (y - (sizeY - 0.5)) + offset);
+                this.scene.add(block);
+
+                // add collision object.
+                const blockCollisionObject = new CollisionObject(block);
+                this.physicsManager.add(blockCollisionObject);
+
+                blocks.push(blockCollisionObject);
+
             }
-
-            let block = new Mesh([this.boxPrimitive]);
-            block.setTranslation(x - (sizeX / 2) + 0.5, 0, (y - (sizeY - 0.5)) + offset);
-            this.scene.add(block);
-
-            // add collision object.
-            const blockCollisionObject = new CollisionObject(block);
-            this.physicsManager.add(blockCollisionObject);
-
-            blocks.push(blockCollisionObject);
-
         }
 
         return { floor, blocks, offset };
@@ -103,30 +107,30 @@ export default class ObstacleManager {
 
     update(positionZ) {
 
-        const offset = Math.floor(positionZ); // position[2] is the z-component of the position vector.
+        const offset = Math.floor(positionZ / this.sizeY) * this.sizeY; // position[2] is the z-component of the position vector.
 
-        if (offset % this.sizeY === 0) {
+        if (offset < this.offset && offset < this.currentChunk.offset) {
 
-            if (offset < this.currentChunk.offset) {
-                // the player just entered the next chunk.
+            // the player just entered the next chunk.
 
-                // destroy the previous chunk.
-                this.destroyChunk(this.previousChunk);
-                this.previousChunk = this.currentChunk;
+            // destroy the previous chunk.
+            this.destroyChunk(this.previousChunk);
+            this.previousChunk = this.currentChunk;
 
-                // set next chunk as current chunk.
-                this.currentChunk = this.nextChunk;
+            // set next chunk as current chunk.
+            this.currentChunk = this.nextChunk;
 
-                // create a new next chunk.
-                this.nextChunk = this.generateChunk(offset - this.sizeY);
-
-            }
+            // create a new next chunk.
+            this.nextChunk = this.generateChunk(offset);
 
         }
 
+        this.offset = offset;
     }
 
     reset() {
+
+        this.offset = 6;
 
         if (this.previousChunk !== null) {
             this.destroyChunk(this.previousChunk);
@@ -142,10 +146,10 @@ export default class ObstacleManager {
             this.destroyChunk(this.nextChunk);
             this.nextChunk = null;
         }
-        
 
-        this.nextChunk = this.generateChunk(-this.sizeY); // negative z is forward.
-        this.currentChunk = this.generateChunk(0);
+
+        this.nextChunk = this.generateChunk(0); // negative z is forward.
+        this.currentChunk = this.generateChunk(this.sizeY, true);
 
     }
 }
