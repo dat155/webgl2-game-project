@@ -1,6 +1,6 @@
+import MouseLookController from './MouseLookController.js';
 
-import { vec3, vec4 } from './engine/lib/gl-matrix.js';
-import { Renderer, Scene, Node, Mesh, Primitives, Light, BasicMaterial, CubeMapMaterial, PerspectiveCamera, MouseLookController } from './engine/index.js';
+import { Renderer, Scene, Node, Mesh, Primitive, Light, BasicMaterial, CubeMapMaterial, PerspectiveCamera, vec3, vec4 } from '../lib/engine/index.js';
 import { CollisionObject, PhysicsManager } from './physics/index.js';
 import ObstacleManager from './obstacles/ObstacleManager.js';
 
@@ -25,7 +25,7 @@ const boxMaterial = new BasicMaterial({
 });
 
 // Create a box primitive with the helper function create box.
-const boxPrimitive = Primitives.createBox(boxMaterial);
+const boxPrimitive = Primitive.createCube(boxMaterial);
 
 // We create a scenegraph Node to represent the player in the world.
 const player = new Node(scene); // We pass scene as an argument to make the player a child of the scene node.
@@ -39,7 +39,6 @@ player.add(light);
 
 // Move the player back slightly (-z is forward) so that the first chunk is generated properly.
 player.applyTranslation(0, 0, 1);
-
 // Create a Mesh representing the player.
 const playerMesh = new Mesh([boxPrimitive]);
 playerMesh.applyScale(0.5, 0.5, 0.5);
@@ -105,8 +104,8 @@ let yaw = 0;
 let pitch = 0;
 
 function updateCamRotation(event) {
-    yaw += event.movementX * 0.001;
-    pitch += event.movementY * 0.001;
+    yaw -= event.movementX * 0.001;
+    pitch -= event.movementY * 0.001;
 }
 
 document.addEventListener('pointerlockchange', () => {
@@ -206,7 +205,7 @@ let skyBoxMaterial = new CubeMapMaterial({
     ])
 });
 
-let skyBoxPrimitive = Primitives.createBox(skyBoxMaterial, true); // Second argument tells the createBox function to invert the faces and normals of the box.
+let skyBoxPrimitive = Primitive.createCube(skyBoxMaterial, true); // Second argument tells the createBox function to invert the faces and normals of the box.
 
 let skyBox = new Mesh([skyBoxPrimitive]);
 skyBox.setScale(1500, 1500, 1500);

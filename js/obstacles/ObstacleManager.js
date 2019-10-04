@@ -1,6 +1,4 @@
-import { vec4 } from '../engine/lib/gl-matrix.js';
-
-import { Mesh, Primitives, PhongMaterial } from '../engine/index.js';
+import { Mesh, Primitive, PhongMaterial } from '../../lib/engine/index.js';
 import { CollisionObject } from '../physics/index.js';
 
 export default class ObstacleManager {
@@ -14,14 +12,14 @@ export default class ObstacleManager {
             map: blockTexture
         });
 
-        this.boxPrimitive = Primitives.createBox(boxMaterial);
+        this.boxPrimitive = Primitive.createCube(boxMaterial);
 
         const floorMaterial = new PhongMaterial({
             shininess: 3,
             map: floorTexture
         });
 
-        this.planePrimitive = Primitives.createPlane(floorMaterial);
+        this.planePrimitive = Primitive.createPlane(floorMaterial);
 
         this.sizeX = 8;
         this.sizeY = 8 * 2;
