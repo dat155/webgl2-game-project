@@ -1,3 +1,0 @@
-[submodule "lib/engine"]
-	path = lib/engine
-	url = https://github.com/dat155/webgl2-graphics-engine.git
